@@ -62,3 +62,67 @@ func TestFamilyIsolation(t *testing.T) {
 		t.Fatalf("expected forbidden, got %v", err)
 	}
 }
+
+func TestMVPCRUDUpdatesAndDeletes(t *testing.T) {
+	store := NewMemoryStore("test-secret")
+	auth, err := store.Register("crud@example.com", "password123", "CRUD")
+	if err != nil {
+		t.Fatal(err)
+	}
+	family, err := store.CreateFamily(auth.User.ID, "原本的城堡")
+	if err != nil {
+		t.Fatal(err)
+	}
+	updatedFamily, err := store.UpdateFamily(auth.User.ID, family.ID, "新的童話城堡")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if updatedFamily.Name != "新的童話城堡" {
+		t.Fatalf("family not updated: %+v", updatedFamily)
+	}
+	child, err := store.CreateChild(auth.User.ID, domain.Child{FamilyID: family.ID, Name: "小雨", Nickname: "雨雨"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	child, err = store.UpdateChild(auth.User.ID, child.ID, domain.Child{Name: "小晴"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if child.Name != "小晴" {
+		t.Fatalf("child not updated: %+v", child)
+	}
+	character, err := store.CreateCharacter(auth.User.ID, domain.Character{FamilyID: family.ID, ChildID: child.ID, RealName: "小晴", StoryName: "星光小魔女", RoleType: "學徒", MagicPower: "星光"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	character, err = store.UpdateCharacter(auth.User.ID, character.ID, domain.Character{StoryName: "星光守護者"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if character.StoryName != "星光守護者" {
+		t.Fatalf("character not updated: %+v", character)
+	}
+	story, err := store.GenerateStory(auth.User.ID, StoryGenerateInput{FamilyID: family.ID, ChildID: child.ID, MainCharacterID: character.ID, RegionID: 2, Theme: "責任", StoryLength: "3_min", Tone: "溫柔"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	updatedStory, err := store.UpdateStory(auth.User.ID, story.Story.ID, domain.Story{Title: "新的故事標題"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if updatedStory.Title != "新的故事標題" {
+		t.Fatalf("story not updated: %+v", updatedStory)
+	}
+	if err := store.DeleteStory(auth.User.ID, story.Story.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.GetStory(auth.User.ID, story.Story.ID); err != ErrNotFound {
+		t.Fatalf("expected deleted story not found, got %v", err)
+	}
+	if err := store.DeleteCharacter(auth.User.ID, character.ID); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.DeleteChild(auth.User.ID, child.ID); err != nil {
+		t.Fatal(err)
+	}
+}

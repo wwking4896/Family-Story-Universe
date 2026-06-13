@@ -74,14 +74,13 @@ docker compose up --build
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
 - `GET /api/v1/auth/me`
-- `POST /api/v1/families`
-- `GET /api/v1/families/me`
-- `POST /api/v1/children` / `GET /api/v1/children?family_id=1`
-- `POST /api/v1/characters` / `GET /api/v1/characters?family_id=1`
+- `POST /api/v1/families` / `GET /api/v1/families/me` / `PATCH /api/v1/families/{familyId}`
+- `POST /api/v1/children` / `GET /api/v1/children?family_id=1` / `GET|PATCH|DELETE /api/v1/children/{childId}`
+- `POST /api/v1/characters` / `GET /api/v1/characters?family_id=1` / `GET|PATCH|DELETE /api/v1/characters/{characterId}`
 - `GET /api/v1/regions`
 - `POST /api/v1/stories/generate`
-- `GET /api/v1/stories?family_id=1`
-- `GET /api/v1/timebook?family_id=1`
+- `GET /api/v1/stories?family_id=1` / `GET|PATCH|DELETE /api/v1/stories/{storyId}`
+- `GET /api/v1/timebook?family_id=1` / `GET /api/v1/timebook/{year}?family_id=1`
 
 注意：目前資料暫存在記憶體中，服務重啟後會清空；MySQL schema 已先由 migrations 定義，後續 Sprint 可切換 repository。
 

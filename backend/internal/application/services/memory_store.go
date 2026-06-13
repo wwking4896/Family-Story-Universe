@@ -190,6 +190,25 @@ func (s *MemoryStore) MyFamilies(userID int64) []domain.Family {
 	return items
 }
 
+func (s *MemoryStore) UpdateFamily(userID, familyID int64, name string) (domain.Family, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	family, ok := s.families[familyID]
+	if !ok {
+		return domain.Family{}, ErrNotFound
+	}
+	if !s.isMemberLocked(userID, familyID) || family.OwnerUserID != userID {
+		return domain.Family{}, ErrForbidden
+	}
+	if strings.TrimSpace(name) == "" {
+		return domain.Family{}, ErrValidation
+	}
+	family.Name = name
+	family.UpdatedAt = time.Now().UTC()
+	s.families[familyID] = family
+	return family, nil
+}
+
 func (s *MemoryStore) CreateChild(userID int64, child domain.Child) (domain.Child, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -218,6 +237,66 @@ func (s *MemoryStore) ListChildren(userID, familyID int64) ([]domain.Child, erro
 		}
 	}
 	return items, nil
+}
+
+func (s *MemoryStore) GetChild(userID, childID int64) (domain.Child, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	child, ok := s.children[childID]
+	if !ok || child.DeletedAt != nil {
+		return domain.Child{}, ErrNotFound
+	}
+	if !s.isMemberLocked(userID, child.FamilyID) {
+		return domain.Child{}, ErrForbidden
+	}
+	return child, nil
+}
+
+func (s *MemoryStore) UpdateChild(userID, childID int64, patch domain.Child) (domain.Child, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	child, ok := s.children[childID]
+	if !ok || child.DeletedAt != nil {
+		return domain.Child{}, ErrNotFound
+	}
+	if !s.isMemberLocked(userID, child.FamilyID) {
+		return domain.Child{}, ErrForbidden
+	}
+	if strings.TrimSpace(patch.Name) != "" {
+		child.Name = patch.Name
+	}
+	if strings.TrimSpace(patch.Nickname) != "" {
+		child.Nickname = patch.Nickname
+	}
+	if strings.TrimSpace(patch.BirthDate) != "" {
+		child.BirthDate = patch.BirthDate
+	}
+	if patch.GenderOptional != nil {
+		child.GenderOptional = patch.GenderOptional
+	}
+	if patch.AvatarURL != nil {
+		child.AvatarURL = patch.AvatarURL
+	}
+	child.UpdatedAt = time.Now().UTC()
+	s.children[childID] = child
+	return child, nil
+}
+
+func (s *MemoryStore) DeleteChild(userID, childID int64) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	child, ok := s.children[childID]
+	if !ok || child.DeletedAt != nil {
+		return ErrNotFound
+	}
+	if !s.isMemberLocked(userID, child.FamilyID) {
+		return ErrForbidden
+	}
+	now := time.Now().UTC()
+	child.DeletedAt = &now
+	child.UpdatedAt = now
+	s.children[childID] = child
+	return nil
 }
 
 func (s *MemoryStore) CreateCharacter(userID int64, character domain.Character) (domain.Character, error) {
@@ -251,6 +330,75 @@ func (s *MemoryStore) ListCharacters(userID, familyID int64) ([]domain.Character
 		}
 	}
 	return items, nil
+}
+
+func (s *MemoryStore) GetCharacter(userID, characterID int64) (domain.Character, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	character, ok := s.characters[characterID]
+	if !ok || character.DeletedAt != nil {
+		return domain.Character{}, ErrNotFound
+	}
+	if !s.isMemberLocked(userID, character.FamilyID) {
+		return domain.Character{}, ErrForbidden
+	}
+	return character, nil
+}
+
+func (s *MemoryStore) UpdateCharacter(userID, characterID int64, patch domain.Character) (domain.Character, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	character, ok := s.characters[characterID]
+	if !ok || character.DeletedAt != nil {
+		return domain.Character{}, ErrNotFound
+	}
+	if !s.isMemberLocked(userID, character.FamilyID) {
+		return domain.Character{}, ErrForbidden
+	}
+	if strings.TrimSpace(patch.RealName) != "" {
+		character.RealName = patch.RealName
+	}
+	if strings.TrimSpace(patch.StoryName) != "" {
+		character.StoryName = patch.StoryName
+	}
+	if strings.TrimSpace(patch.RoleType) != "" {
+		character.RoleType = patch.RoleType
+	}
+	if patch.PersonalityTraits != nil {
+		character.PersonalityTraits = patch.PersonalityTraits
+	}
+	if patch.Likes != nil {
+		character.Likes = patch.Likes
+	}
+	if patch.Fears != nil {
+		character.Fears = patch.Fears
+	}
+	if strings.TrimSpace(patch.MagicPower) != "" {
+		character.MagicPower = patch.MagicPower
+	}
+	if patch.AvatarURL != nil {
+		character.AvatarURL = patch.AvatarURL
+	}
+	character.UpdatedAt = time.Now().UTC()
+	s.characters[characterID] = character
+	return character, nil
+}
+
+func (s *MemoryStore) DeleteCharacter(userID, characterID int64) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	character, ok := s.characters[characterID]
+	if !ok || character.DeletedAt != nil {
+		return ErrNotFound
+	}
+	if !s.isMemberLocked(userID, character.FamilyID) {
+		return ErrForbidden
+	}
+	now := time.Now().UTC()
+	character.DeletedAt = &now
+	character.UpdatedAt = now
+	s.characters[characterID] = character
+	return nil
 }
 
 func (s *MemoryStore) Regions() []domain.Region {
@@ -327,6 +475,62 @@ func (s *MemoryStore) GetStory(userID, storyID int64) (domain.Story, error) {
 		return domain.Story{}, ErrForbidden
 	}
 	return story, nil
+}
+
+func (s *MemoryStore) UpdateStory(userID, storyID int64, patch domain.Story) (domain.Story, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	story, ok := s.stories[storyID]
+	if !ok || story.DeletedAt != nil {
+		return domain.Story{}, ErrNotFound
+	}
+	if !s.isMemberLocked(userID, story.FamilyID) {
+		return domain.Story{}, ErrForbidden
+	}
+	if strings.TrimSpace(patch.Title) != "" {
+		story.Title = patch.Title
+	}
+	if strings.TrimSpace(patch.Summary) != "" {
+		story.Summary = patch.Summary
+	}
+	if strings.TrimSpace(patch.Status) != "" {
+		story.Status = patch.Status
+	}
+	story.UpdatedAt = time.Now().UTC()
+	s.stories[storyID] = story
+	return story, nil
+}
+
+func (s *MemoryStore) DeleteStory(userID, storyID int64) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	story, ok := s.stories[storyID]
+	if !ok || story.DeletedAt != nil {
+		return ErrNotFound
+	}
+	if !s.isMemberLocked(userID, story.FamilyID) {
+		return ErrForbidden
+	}
+	now := time.Now().UTC()
+	story.DeletedAt = &now
+	story.UpdatedAt = now
+	s.stories[storyID] = story
+	return nil
+}
+
+func (s *MemoryStore) TimebookYear(userID, familyID int64, year int) (TimebookResponse, error) {
+	response, err := s.Timebook(userID, familyID)
+	if err != nil {
+		return TimebookResponse{}, err
+	}
+	filtered := TimebookResponse{Years: []TimebookYear{}}
+	for _, item := range response.Years {
+		if item.Year == year {
+			filtered.Years = append(filtered.Years, item)
+			break
+		}
+	}
+	return filtered, nil
 }
 
 func (s *MemoryStore) Timebook(userID, familyID int64) (TimebookResponse, error) {

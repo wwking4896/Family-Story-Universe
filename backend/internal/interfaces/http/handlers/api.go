@@ -77,6 +77,23 @@ func (h *APIHandler) CreateFamily(w http.ResponseWriter, r *http.Request) {
 	respond(w, family, err, http.StatusCreated)
 }
 
+func (h *APIHandler) UpdateFamily(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	familyID, ok := pathInt(w, r, "familyId")
+	if !ok {
+		return
+	}
+	var req familyRequest
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+	family, err := h.store.UpdateFamily(user.ID, familyID, req.Name)
+	respond(w, family, err, http.StatusOK)
+}
+
 func (h *APIHandler) MyFamilies(w http.ResponseWriter, r *http.Request) {
 	user, ok := h.requireUser(w, r)
 	if !ok {
@@ -111,6 +128,48 @@ func (h *APIHandler) ListChildren(w http.ResponseWriter, r *http.Request) {
 	respond(w, map[string]any{"items": items}, err, http.StatusOK)
 }
 
+func (h *APIHandler) GetChild(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	childID, ok := pathInt(w, r, "childId")
+	if !ok {
+		return
+	}
+	child, err := h.store.GetChild(user.ID, childID)
+	respond(w, child, err, http.StatusOK)
+}
+
+func (h *APIHandler) UpdateChild(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	childID, ok := pathInt(w, r, "childId")
+	if !ok {
+		return
+	}
+	var patch domain.Child
+	if !decodeJSON(w, r, &patch) {
+		return
+	}
+	child, err := h.store.UpdateChild(user.ID, childID, patch)
+	respond(w, child, err, http.StatusOK)
+}
+
+func (h *APIHandler) DeleteChild(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	childID, ok := pathInt(w, r, "childId")
+	if !ok {
+		return
+	}
+	respond(w, map[string]string{"status": "deleted"}, h.store.DeleteChild(user.ID, childID), http.StatusOK)
+}
+
 func (h *APIHandler) CreateCharacter(w http.ResponseWriter, r *http.Request) {
 	user, ok := h.requireUser(w, r)
 	if !ok {
@@ -135,6 +194,48 @@ func (h *APIHandler) ListCharacters(w http.ResponseWriter, r *http.Request) {
 	}
 	items, err := h.store.ListCharacters(user.ID, familyID)
 	respond(w, map[string]any{"items": items}, err, http.StatusOK)
+}
+
+func (h *APIHandler) GetCharacter(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	characterID, ok := pathInt(w, r, "characterId")
+	if !ok {
+		return
+	}
+	character, err := h.store.GetCharacter(user.ID, characterID)
+	respond(w, character, err, http.StatusOK)
+}
+
+func (h *APIHandler) UpdateCharacter(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	characterID, ok := pathInt(w, r, "characterId")
+	if !ok {
+		return
+	}
+	var patch domain.Character
+	if !decodeJSON(w, r, &patch) {
+		return
+	}
+	character, err := h.store.UpdateCharacter(user.ID, characterID, patch)
+	respond(w, character, err, http.StatusOK)
+}
+
+func (h *APIHandler) DeleteCharacter(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	characterID, ok := pathInt(w, r, "characterId")
+	if !ok {
+		return
+	}
+	respond(w, map[string]string{"status": "deleted"}, h.store.DeleteCharacter(user.ID, characterID), http.StatusOK)
 }
 
 func (h *APIHandler) Regions(w http.ResponseWriter, _ *http.Request) {
@@ -181,6 +282,35 @@ func (h *APIHandler) GetStory(w http.ResponseWriter, r *http.Request) {
 	respond(w, story, err, http.StatusOK)
 }
 
+func (h *APIHandler) UpdateStory(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	storyID, ok := pathInt(w, r, "storyId")
+	if !ok {
+		return
+	}
+	var patch domain.Story
+	if !decodeJSON(w, r, &patch) {
+		return
+	}
+	story, err := h.store.UpdateStory(user.ID, storyID, patch)
+	respond(w, story, err, http.StatusOK)
+}
+
+func (h *APIHandler) DeleteStory(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	storyID, ok := pathInt(w, r, "storyId")
+	if !ok {
+		return
+	}
+	respond(w, map[string]string{"status": "deleted"}, h.store.DeleteStory(user.ID, storyID), http.StatusOK)
+}
+
 func (h *APIHandler) Timebook(w http.ResponseWriter, r *http.Request) {
 	user, ok := h.requireUser(w, r)
 	if !ok {
@@ -191,6 +321,23 @@ func (h *APIHandler) Timebook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := h.store.Timebook(user.ID, familyID)
+	respond(w, result, err, http.StatusOK)
+}
+
+func (h *APIHandler) TimebookYear(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.requireUser(w, r)
+	if !ok {
+		return
+	}
+	familyID, ok := intQuery(w, r, "family_id")
+	if !ok {
+		return
+	}
+	yearValue, ok := pathInt(w, r, "year")
+	if !ok {
+		return
+	}
+	result, err := h.store.TimebookYear(user.ID, familyID, int(yearValue))
 	respond(w, result, err, http.StatusOK)
 }
 
@@ -215,6 +362,15 @@ func decodeJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
 		return false
 	}
 	return true
+}
+
+func pathInt(w http.ResponseWriter, r *http.Request, key string) (int64, bool) {
+	id, err := strconv.ParseInt(r.PathValue(key), 10, 64)
+	if err != nil || id <= 0 {
+		writeError(w, http.StatusBadRequest, "VALIDATION_ERROR", key+" 格式不正確")
+		return 0, false
+	}
+	return id, true
 }
 
 func intQuery(w http.ResponseWriter, r *http.Request, key string) (int64, bool) {

@@ -232,15 +232,25 @@ Response:
 - `GET /auth/me`
 - `POST /families`
 - `GET /families/me`
+- `PATCH /families/{familyId}`
 - `POST /children`
 - `GET /children`
+- `GET /children/{childId}`
+- `PATCH /children/{childId}`
+- `DELETE /children/{childId}`
 - `POST /characters`
 - `GET /characters`
+- `GET /characters/{characterId}`
+- `PATCH /characters/{characterId}`
+- `DELETE /characters/{characterId}`
 - `GET /regions`
 - `POST /stories/generate`
 - `GET /stories`
 - `GET /stories/{storyId}`
+- `PATCH /stories/{storyId}`
+- `DELETE /stories/{storyId}`
 - `GET /timebook`
+- `GET /timebook/{year}`
 
 資料庫 migration 已同步定義核心資料表；後續 Sprint 可將 repository 從 in-memory 切換為 MySQL。
 
