@@ -1,0 +1,11 @@
+{
+  "name": "童話城堡 Fairy Castle",
+  "short_name": "童話城堡",
+  "description": "一座陪伴孩子長大的家庭童話王國",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF7E8",
+  "theme_color": "#8B5CF6",
+  "lang": "zh-Hant-TW",
+  "icons": []
+}
