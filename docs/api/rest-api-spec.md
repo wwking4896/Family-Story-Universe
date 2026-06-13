@@ -221,6 +221,29 @@ Response:
 
 回傳指定年份資料。
 
+
+## MVP 實作狀態
+
+目前 Sprint 1 以前的本地 MVP backend 已以 in-memory store 實作以下端點，方便前端串接與 E2E 流程驗證：
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/logout`
+- `GET /auth/me`
+- `POST /families`
+- `GET /families/me`
+- `POST /children`
+- `GET /children`
+- `POST /characters`
+- `GET /characters`
+- `GET /regions`
+- `POST /stories/generate`
+- `GET /stories`
+- `GET /stories/{storyId}`
+- `GET /timebook`
+
+資料庫 migration 已同步定義核心資料表；後續 Sprint 可將 repository 從 in-memory 切換為 MySQL。
+
 ## 狀態碼規範
 
 - 200：查詢或更新成功。

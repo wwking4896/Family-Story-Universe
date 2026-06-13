@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fairy-castle/family-story-universe/backend/internal/application/services"
 	"github.com/fairy-castle/family-story-universe/backend/internal/config"
 	"github.com/fairy-castle/family-story-universe/backend/internal/interfaces/http/routes"
 	"github.com/fairy-castle/family-story-universe/backend/pkg/logger"
@@ -22,7 +23,8 @@ func main() {
 	log := logger.New(cfg.LogLevel)
 	slog.SetDefault(log)
 
-	router := routes.NewRouter(log, version)
+	store := services.NewMemoryStore(cfg.JWTSecret)
+	router := routes.NewRouter(log, version, store)
 	server := &http.Server{
 		Addr:              ":" + cfg.HTTPPort,
 		Handler:           router,
