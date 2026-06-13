@@ -4,9 +4,9 @@
 
 ## 文件入口
 
-請從 [docs/00-index.md](docs/00-index.md) 開始閱讀。
+請從 [docs/00-index.md](docs/00-index.md) 開始閱讀。機器可讀 API 規格位於 [docs/api/openapi.yaml](docs/api/openapi.yaml)。
 
-核心文件包含：完整 PRD、MVP 功能清單、User Stories、Acceptance Criteria、系統架構設計、ERD、REST API、AI Story Engine、Prompt Template、QA Test Plan、Sprint Backlog 與 Repo 結構建議。
+核心文件包含：完整 PRD、MVP 功能清單、User Stories、Acceptance Criteria、系統架構設計、ERD、REST API、OpenAPI 規格、AI Story Engine、Prompt Template、QA Test Plan、Sprint Backlog 與 Repo 結構建議。
 
 ## 專案結構
 

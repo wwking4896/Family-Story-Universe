@@ -10,7 +10,7 @@
 4. [Acceptance Criteria](product/acceptance-criteria.md)
 5. [系統架構設計](architecture/system-architecture.md)
 6. [ERD 資料庫設計](architecture/erd.md)
-7. [REST API 規格](api/rest-api-spec.md)
+7. [REST API 規格](api/rest-api-spec.md) / [OpenAPI YAML](api/openapi.yaml)
 8. [AI Story Engine 規格](ai/story-engine.md)
 9. [Prompt Template](ai/prompt-templates.md)
 10. [QA Test Plan](qa/test-plan.md)
