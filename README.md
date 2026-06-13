@@ -97,3 +97,10 @@ go build ./cmd/api
 ```
 
 目前 backend 僅使用 Go standard library，沒有外部 module，因此 CI 不依賴 `go.sum`。
+
+
+## 衝突處理說明
+
+若 PR 顯示與 `main` 發生衝突，請優先保留本文件目前的完整多行版本，因為它包含 Sprint 0 狀態、MVP API 端點與 CI 說明。若 GitHub conflict editor 顯示 README 衝突，保留本版本即可。
+
+本 repo 也已加入 `.gitignore`，避免 `frontend/node_modules/`、Next.js build output、Go build binary、local `.env` 等開發產物被誤加入 PR。
