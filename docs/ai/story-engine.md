@@ -76,3 +76,16 @@ GenerateImage(ctx, input) -> output // V2
 | safety failed | job.status = blocked，不發布故事 |
 | quota exceeded | 回傳 429 或商業錯誤碼 |
 | provider unavailable | 使用 mock/fallback 僅限 dev，不在 production 假成功 |
+
+
+## MVP Rule-based Guardrails
+
+目前 backend in-memory MVP 在呼叫 mock story generation 前會先做規則式驗證：
+
+- 主題必須屬於 MVP 支援清單：勇氣、分享、禮貌、責任、同理心、情緒管理、睡前放鬆、親子陪伴。
+- 故事長度必須是 `3_min`、`5_min` 或 `10_min`。
+- 語氣若有提供，必須是溫柔、奇幻、搞笑、睡前安撫或冒險。
+- 語言若有提供，必須是 `zh-TW`。
+- `real_life_event_optional`、主題與語氣會做基礎兒童安全與 prompt injection 關鍵字檢查，例如死亡、血腥、成人內容、仇恨、歧視、恐怖，以及要求忽略系統提示的輸入。
+
+這不是最終內容安全方案；正式 AI provider 串接後仍需保留 schema validation、模型安全檢查與人工可稽核 logs。

@@ -23,6 +23,21 @@ var (
 	ErrConflict     = errors.New("conflict")
 )
 
+var allowedStoryThemes = map[string]bool{
+	"勇氣": true, "分享": true, "禮貌": true, "責任": true,
+	"同理心": true, "情緒管理": true, "睡前放鬆": true, "親子陪伴": true,
+}
+
+var allowedStoryLengths = map[string]bool{"3_min": true, "5_min": true, "10_min": true}
+
+var allowedStoryTones = map[string]bool{
+	"溫柔": true, "奇幻": true, "搞笑": true, "睡前安撫": true, "冒險": true,
+}
+
+var unsafeStoryTerms = []string{
+	"死亡", "血腥", "殺", "自殺", "成人內容", "色情", "仇恨", "歧視", "虐待", "恐怖", "鬼", "ignore previous", "忽略以上", "忽略前面", "system prompt",
+}
+
 type MemoryStore struct {
 	mu sync.RWMutex
 
@@ -418,6 +433,9 @@ func (s *MemoryStore) GenerateStory(userID int64, input StoryGenerateInput) (Sto
 	if !s.isMemberLocked(userID, input.FamilyID) {
 		return StoryGenerateResult{}, ErrForbidden
 	}
+	if err := validateStoryInput(input); err != nil {
+		return StoryGenerateResult{}, err
+	}
 	child, childOK := s.children[input.ChildID]
 	character, characterOK := s.characters[input.MainCharacterID]
 	region, regionOK := s.regions[input.RegionID]
@@ -659,6 +677,28 @@ func (s *MemoryStore) recentMemoryTagsLocked(familyID, childID int64, limit int)
 		tags = append(tags, memory.Tag)
 	}
 	return tags
+}
+
+func validateStoryInput(input StoryGenerateInput) error {
+	if !allowedStoryThemes[input.Theme] {
+		return ErrValidation
+	}
+	if !allowedStoryLengths[input.StoryLength] {
+		return ErrValidation
+	}
+	if input.Tone != "" && !allowedStoryTones[input.Tone] {
+		return ErrValidation
+	}
+	if input.Language != "" && input.Language != "zh-TW" {
+		return ErrValidation
+	}
+	combined := strings.ToLower(input.Theme + " " + input.Tone + " " + input.RealLifeEventOptional)
+	for _, term := range unsafeStoryTerms {
+		if strings.Contains(combined, strings.ToLower(term)) {
+			return ErrValidation
+		}
+	}
+	return nil
 }
 
 func generateMockStory(child domain.Child, character domain.Character, region domain.Region, input StoryGenerateInput, memories []string) (string, []string) {

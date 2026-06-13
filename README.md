@@ -82,7 +82,7 @@ docker compose up --build
 - `GET /api/v1/stories?family_id=1` / `GET|PATCH|DELETE /api/v1/stories/{storyId}`
 - `GET /api/v1/timebook?family_id=1` / `GET /api/v1/timebook/{year}?family_id=1`
 
-注意：目前資料暫存在記憶體中，服務重啟後會清空；MySQL schema 已先由 migrations 定義，後續 Sprint 可切換 repository。
+注意：目前資料暫存在記憶體中，服務重啟後會清空；MySQL schema 已先由 migrations 定義，後續 Sprint 可切換 repository。故事生成目前會先檢查 MVP 支援主題、故事長度、語氣、語言與基礎兒童安全 / prompt injection 關鍵字。
 
 
 ## CI 說明
