@@ -65,7 +65,7 @@ docker compose up --build
 - Frontend Next.js/PWA skeleton：完成。
 - Docker Compose：完成。
 - 環境變數範本：完成。
-- CI backend check：完成。
+- CI backend check：完成，GitHub Actions 會執行 backend test 與 build。
 
 ## MVP API 目前可用端點
 
@@ -84,3 +84,16 @@ docker compose up --build
 - `GET /api/v1/timebook?family_id=1`
 
 注意：目前資料暫存在記憶體中，服務重啟後會清空；MySQL schema 已先由 migrations 定義，後續 Sprint 可切換 repository。
+
+
+## CI 說明
+
+GitHub Actions workflow 位於 `.github/workflows/ci.yml`，會在 pull request 與 push 到 `main` 時執行：
+
+```bash
+cd backend
+go test ./...
+go build ./cmd/api
+```
+
+目前 backend 僅使用 Go standard library，沒有外部 module，因此 CI 不依賴 `go.sum`。
