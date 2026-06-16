@@ -58,6 +58,27 @@ docker compose up --build
 - MySQL：`localhost:3306`
 - Redis：`localhost:6379`
 
+## GitHub Pages 前端預覽
+
+可以先把 `frontend/` 以靜態網站方式部署到 GitHub Pages，快速確認首頁、版面與 H5/PWA 前端骨架。
+
+限制：GitHub Pages 只能跑靜態前端，不能執行 Golang backend、MySQL、Redis 或 AI story generation worker。需要完整 API 流程時，請搭配本機 backend、Docker Compose，或另外部署 backend 到 Render、Fly.io、Railway、Cloud Run、VPS 等可執行容器 / Go 服務的平台。
+
+啟用方式：
+
+1. 到 GitHub repo 的 `Settings` → `Pages`。
+2. 將 `Build and deployment` 的 `Source` 設為 `GitHub Actions`。
+3. 合併到 `main` 後，或手動執行 `Deploy Frontend Preview to GitHub Pages` workflow。
+4. 預覽網址會是 `https://wwking4896.github.io/Family-Story-Universe/`。
+
+此 repo 已新增 `.github/workflows/pages.yml`，會在 `main` 分支的 `frontend/**` 或 workflow 變更後，自動 build Next.js static export 並部署 `frontend/out`。
+
+若要測完整產品流程：
+
+- 本機最快：`cd deployments && docker compose up --build`。
+- 只測 backend：`cd backend && go run ./cmd/api`，再用 curl / Postman 呼叫 API。
+- 線上完整測試：GitHub Pages 放 frontend，backend 另外部署到支援長駐服務的平台，之後用 `NEXT_PUBLIC_API_BASE_URL` 指向該 backend API。
+
 ## Sprint 0 狀態
 
 - Monorepo 目錄骨架：完成。
