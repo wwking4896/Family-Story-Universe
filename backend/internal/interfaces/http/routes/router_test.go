@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/fairy-castle/family-story-universe/backend/internal/application/services"
@@ -131,6 +132,28 @@ func TestHTTPStoryGenerationRejectsUnsafeInput(t *testing.T) {
 	router.ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusBadRequest {
 		t.Fatalf("expected 400 for unsafe input, got %d: %s", recorder.Code, recorder.Body.String())
+	}
+}
+
+func TestCORSPreflight(t *testing.T) {
+	router := NewRouter(slog.Default(), "test", services.NewMemoryStore("test-secret"))
+
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodOptions, "/api/v1/auth/login", nil)
+	request.Header.Set("Origin", "http://localhost:3000")
+	request.Header.Set("Access-Control-Request-Method", http.MethodPost)
+	request.Header.Set("Access-Control-Request-Headers", "authorization,content-type")
+
+	router.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusNoContent {
+		t.Fatalf("expected 204 for CORS preflight, got %d", recorder.Code)
+	}
+	if got := recorder.Header().Get("Access-Control-Allow-Origin"); got != "*" {
+		t.Fatalf("expected wildcard CORS origin, got %q", got)
+	}
+	if got := recorder.Header().Get("Access-Control-Allow-Headers"); !strings.Contains(got, "Authorization") {
+		t.Fatalf("expected Authorization in allowed headers, got %q", got)
 	}
 }
 

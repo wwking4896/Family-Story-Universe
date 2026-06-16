@@ -44,6 +44,12 @@ npm run dev
 
 Frontend 預設網址：`http://localhost:3000`。
 
+### MVP 一鍵試用頁
+
+啟動 backend 與 frontend 後，可開啟 `http://localhost:3000/demo` 進行本機 MVP smoke test。此頁會依序呼叫 in-memory API：註冊帳號、建立家庭、建立孩子、建立童話角色，最後產生一篇睡前故事。
+
+因 frontend 與 backend 開發時會分別跑在 `localhost:3000` 與 `localhost:8080`，backend 已加入 MVP CORS middleware，允許 H5/PWA 在本機測試時帶 `Authorization` header 呼叫 API。
+
 ### Docker Compose
 
 ```bash

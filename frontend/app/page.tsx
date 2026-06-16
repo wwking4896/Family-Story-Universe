@@ -19,9 +19,14 @@ export default function HomePage() {
           <p className="mt-3 text-base leading-7 text-slate-600">
             把孩子、家人與日常回憶，轉化成會陪伴孩子長大的家庭童話王國。
           </p>
-          <a className="mt-6 block w-full rounded-full bg-castle-purple px-5 py-3 text-center text-base font-semibold text-white shadow-lg shadow-purple-200" href="#mvp-flow">
-            查看 MVP 流程
-          </a>
+          <div className="mt-6 grid gap-3">
+            <a className="block w-full rounded-full bg-castle-purple px-5 py-3 text-center text-base font-semibold text-white shadow-lg shadow-purple-200" href="./demo">
+              開始本機 MVP 試用
+            </a>
+            <a className="block w-full rounded-full border border-purple-200 bg-white px-5 py-3 text-center text-base font-semibold text-castle-purple" href="#mvp-flow">
+              查看 MVP 流程
+            </a>
+          </div>
         </header>
 
         <section aria-labelledby="today-story" className="rounded-3xl bg-castle-night p-5 text-white">

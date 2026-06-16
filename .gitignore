@@ -28,3 +28,7 @@ frontend/pnpm-debug.log*
 *.log
 .tmp/
 tmp/
+
+# TypeScript incremental build info
+tsconfig.tsbuildinfo
+*.tsbuildinfo

@@ -45,5 +45,5 @@ func NewRouter(log *slog.Logger, version string, store *services.MemoryStore) ht
 	mux.HandleFunc("GET /api/v1/timebook/{year}", apiHandler.TimebookYear)
 
 	log.Info("router initialized", "version", version)
-	return middlewares.RequestID(mux)
+	return middlewares.CORS(middlewares.RequestID(mux))
 }
