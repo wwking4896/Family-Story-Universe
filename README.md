@@ -73,6 +73,8 @@ docker compose up --build
 
 此 repo 已新增 `.github/workflows/pages.yml`，會在 `main` 分支的 `frontend/**` 或 workflow 變更後，自動 build Next.js static export 並部署 `frontend/out`。
 
+若 `actions/deploy-pages` 出現 `HttpError: Not Found` 或 `Ensure GitHub Pages has been enabled`，通常代表 repo 尚未啟用 GitHub Pages。請先到 `Settings` → `Pages`，確認 Source 已選擇 `GitHub Actions`，儲存後再重新執行 workflow。若 repo 是 private，請同時確認目前 GitHub 方案支援 private repo Pages。
+
 若要測完整產品流程：
 
 - 本機最快：`cd deployments && docker compose up --build`。
